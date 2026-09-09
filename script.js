@@ -9,12 +9,21 @@
 // neighborhoods, which is exactly why AQI is shown once for the whole city
 // rather than once per pin (see README for detail).
 
+// Colors are original accents inspired by the color-coded feel of a
+// neighborhood boundary map a user shared — one distinct hue per
+// neighborhood — not a copy of that map's actual (light, pastel) palette.
+// Each was checked to clear WCAG AA against the sign's black background.
 const LANDMARKS = [
-  { key: 'fairmount', name: 'Fairmount', lat: 39.9656, lon: -75.1810, x: 44, y: 8 },
-  { key: 'univcity', name: 'University City', lat: 39.9550, lon: -75.1930, x: 10, y: 30 },
-  { key: 'oldcity', name: 'Old City', lat: 39.9525, lon: -75.1450, x: 90, y: 30, edgeRight: true },
-  { key: 'rittenhouse', name: 'Rittenhouse Square', lat: 39.9490, lon: -75.1719, x: 48, y: 54 },
-  { key: 'pointbreeze', name: 'Point Breeze', lat: 39.9180, lon: -75.1850, x: 26, y: 84 },
+  { key: 'fairmount', name: 'Fairmount', lat: 39.9656, lon: -75.1810, x: 24, y: 6, color: '#c48ee0' },
+  { key: 'fishtown', name: 'Fishtown', lat: 39.9700, lon: -75.1290, x: 86, y: 6, edgeRight: true, color: '#8f9ff0' },
+  { key: 'logansquare', name: 'Logan Square', lat: 39.9581, lon: -75.1723, x: 28, y: 24, color: '#5ed9c0' },
+  { key: 'northernliberties', name: 'Northern Liberties', lat: 39.9720, lon: -75.1340, x: 90, y: 24, edgeRight: true, color: '#b8e05a' },
+  { key: 'univcity', name: 'University City', lat: 39.9550, lon: -75.1930, x: 6, y: 42, color: '#6fb8e8' },
+  { key: 'oldcity', name: 'Old City', lat: 39.9525, lon: -75.1450, x: 92, y: 42, edgeRight: true, color: '#f0a851' },
+  { key: 'rittenhouse', name: 'Rittenhouse Square', lat: 39.9490, lon: -75.1719, x: 30, y: 60, color: '#f2df6a' },
+  { key: 'societyhill', name: 'Society Hill', lat: 39.9445, lon: -75.1410, x: 90, y: 60, edgeRight: true, color: '#f0806a' },
+  { key: 'gayborhood', name: 'Gayborhood', lat: 39.9450, lon: -75.1620, x: 50, y: 78, color: '#ef5da5' },
+  { key: 'pointbreeze', name: 'Point Breeze', lat: 39.9180, lon: -75.1850, x: 24, y: 94, edgeBottom: true, color: '#e88fc0' },
 ];
 
 const AQI_POINT = { lat: 39.9526, lon: -75.1652 }; // central Philly, used as the one citywide reading
@@ -65,6 +74,7 @@ function buildPins() {
     pin.className = 'pin' + (spot.edgeRight ? ' edge-right' : '') + (spot.edgeBottom ? ' edge-bottom' : '');
     pin.style.left = spot.x + '%';
     pin.style.top = spot.y + '%';
+    pin.style.setProperty('--pin-color', spot.color);
     pin.innerHTML = `
       <div class="pin-dot"></div>
       <div class="pin-card">
@@ -101,14 +111,14 @@ async function loadAllWeather() {
 }
 
 async function loadAQI() {
-  const badge = document.getElementById('aqiBadge');
+  const banner = document.getElementById('aqiBanner');
   try {
     const res = await fetch(aqiUrl(AQI_POINT.lat, AQI_POINT.lon));
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
     const aqi = Math.round(data.current.us_aqi);
     const cat = aqiCategory(aqi);
-    badge.className = 'aqi-badge ' + cat.cls;
+    banner.className = 'aqi-banner ' + cat.cls;
     document.getElementById('aqiValue').textContent = aqi;
     document.getElementById('aqiCat').textContent = cat.label;
   } catch (err) {
