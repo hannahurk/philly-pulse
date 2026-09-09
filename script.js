@@ -43,6 +43,30 @@ const WEATHER_LABELS = {
   95: 'Thunderstorm', 96: 'Thunderstorm', 99: 'Thunderstorm',
 };
 
+// Original line-art icons (not a copied icon set) — single-stroke SVGs that
+// inherit currentColor, so each renders in that neighborhood's own accent
+// color. Mapped from WMO weather codes to one of seven icon keys.
+const WEATHER_ICON_KEY = {
+  0: 'sun', 1: 'sun', 2: 'partlyCloudy', 3: 'cloud',
+  45: 'fog', 48: 'fog',
+  51: 'rain', 53: 'rain', 55: 'rain', 56: 'rain', 57: 'rain',
+  61: 'rain', 63: 'rain', 65: 'rain', 66: 'rain', 67: 'rain',
+  71: 'snow', 73: 'snow', 75: 'snow', 77: 'snow',
+  80: 'rain', 81: 'rain', 82: 'rain',
+  85: 'snow', 86: 'snow',
+  95: 'thunder', 96: 'thunder', 99: 'thunder',
+};
+
+const WEATHER_ICONS = {
+  sun: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4.6" fill="currentColor" stroke="none"/><path d="M12 2.2v2.6M12 19.2v2.6M2.2 12h2.6M19.2 12h2.6M5.3 5.3l1.8 1.8M17 17l1.8 1.8M5.3 18.7l1.8-1.8M17 7l1.8-1.8"/></svg>',
+  partlyCloudy: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8.3" cy="7.6" r="3.3" fill="currentColor" stroke="none"/><path d="M8.3 2.4v1.3M3.1 7.6h1.3M4.4 4.1l.95.95M12.2 4.1l-.95.95" stroke-width="1.3"/><path d="M9 19.5h8a3.6 3.6 0 0 0 .4-7.17A5 5 0 0 0 8.3 10.8 3.6 3.6 0 0 0 9 19.5Z"/></svg>',
+  cloud: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 18h10a4 4 0 0 0 .5-7.97A5.5 5.5 0 0 0 7.1 9.5 4 4 0 0 0 7 18Z"/></svg>',
+  fog: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 8h16M2.5 12h19M4 16h12M6 20h9"/></svg>',
+  rain: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 15h10a4 4 0 0 0 .4-7.97A5.5 5.5 0 0 0 6.6 6.4 4 4 0 0 0 7 15Z"/><path d="M8 18.5l-1.2 2.5M12.3 18.5l-1.2 2.5M16.6 18.5l-1.2 2.5"/></svg>',
+  snow: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 15h10a4 4 0 0 0 .4-7.97A5.5 5.5 0 0 0 6.6 6.4 4 4 0 0 0 7 15Z"/><path d="M8 18v4M6.3 19l3.4 2M9.7 19l-3.4 2M16 18v4M14.3 19l3.4 2M17.7 19l-3.4 2"/></svg>',
+  thunder: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 14h10a4 4 0 0 0 .4-7.97A5.5 5.5 0 0 0 6.6 5.4 4 4 0 0 0 7 14Z"/><path d="M13 14.5l-3.2 5.2h2.6l-1.8 4"/></svg>',
+};
+
 function cToF(c) {
   return Math.round((c * 9) / 5 + 32);
 }
@@ -79,7 +103,10 @@ function buildPins() {
       <div class="pin-dot"></div>
       <div class="pin-card">
         <div class="pin-name">${spot.name}</div>
-        <div class="pin-temp" id="temp-${spot.key}">&mdash;<span class="unit">&deg;F</span></div>
+        <div class="pin-main">
+          <div class="pin-temp" id="temp-${spot.key}">&mdash;<span class="unit">&deg;F</span></div>
+          <div class="pin-icon" id="icon-${spot.key}"></div>
+        </div>
         <div class="pin-feels" id="feels-${spot.key}">&mdash;</div>
       </div>
     `;
@@ -96,8 +123,10 @@ async function loadWeatherFor(spot) {
     const temp = cToF(cur.temperature_2m);
     const feels = cToF(cur.apparent_temperature);
     const label = WEATHER_LABELS[cur.weather_code] || '';
+    const iconKey = WEATHER_ICON_KEY[cur.weather_code];
     document.getElementById(`temp-${spot.key}`).innerHTML = `${temp}<span class="unit">&deg;F</span>`;
     document.getElementById(`feels-${spot.key}`).textContent = `Feels ${feels}° · ${label}`;
+    document.getElementById(`icon-${spot.key}`).innerHTML = WEATHER_ICONS[iconKey] || '';
   } catch (err) {
     console.error(`Weather fetch failed for ${spot.name}:`, err);
     document.getElementById(`temp-${spot.key}`).textContent = '—';

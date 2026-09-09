@@ -177,6 +177,12 @@ body.is-idle .sign{
   line-height:1.25;
   margin-bottom:0.25em;
 }
+.pin-main{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:0.4em;
+}
 .pin-temp{
   font-family:'Big Shoulders Display',sans-serif;
   font-weight:700;
@@ -187,6 +193,15 @@ body.is-idle .sign{
   font-size:0.6em;
   color:var(--muted);
   margin-left:0.15em;
+}
+.pin-icon{
+  width:26px;height:26px;
+  flex-shrink:0;
+  color:var(--pin-color, var(--accent));
+}
+.pin-icon svg{
+  width:100%;height:100%;
+  display:block;
 }
 .pin-feels{
   font-family:'IBM Plex Mono',ui-monospace,monospace;
@@ -268,6 +283,7 @@ body.is-idle .sign{
 @media (orientation:portrait){
   .pin-card{width:112px;padding:0.6vh 1.8vw;}
   .pin-temp{font-size:clamp(16px,4vw,22px);}
+  .pin-icon{width:22px;height:22px;}
   .aqi-banner{flex-direction:column;align-items:flex-start;gap:0.3em;}
   .rail{flex-direction:column;align-items:flex-start;}
   .footnote{min-width:0;}

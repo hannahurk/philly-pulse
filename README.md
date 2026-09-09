@@ -44,6 +44,14 @@ show identical numbers as a result. That's not a bug; it's the same lesson
 as the AQI one, just at a finer scale — model resolution runs out eventually,
 even for the metric that's genuinely hyperlocal at city scale.
 
+## Weather icons
+
+Seven original line-art icons (sun, partly cloudy, cloud, fog, rain, snow,
+thunderstorm), mapped from Open-Meteo's WMO weather codes and rendered
+inline as SVG — no icon font or external asset. Each inherits
+`currentColor`, so it renders in that neighborhood's own accent color
+rather than one flat icon color for every pin.
+
 ## The map
 
 The background is an original abstraction, not a copy of any reference map —
