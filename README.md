@@ -16,14 +16,10 @@ Both refresh every 5 minutes.
 
 ## Interaction — screen wake on movement
 
-There's no touchscreen. Instead, a webcam stands in for a real motion/PIR
-sensor — the same frame-diffing technique as the Gallery Wall sign's wave
-detection, just watching continuously rather than waiting for a deliberate
-gesture. After 15 seconds with no movement in frame, the sign dims; any
-motion wakes it back up. The video feed is never shown, recorded, or sent
-anywhere — it's read frame-by-frame in the browser and discarded. If the
-camera is denied or unavailable, the sign simply never dims — there'd be
-no way to sense a wake either.
+There's no touchscreen. Mouse, touch, and keyboard activity stand in for a
+real motion/PIR sensor — the same conceit as the "Look Up" sign's idle/wake
+cycle. After 15 seconds with no activity, the sign dims; any movement wakes
+it back up.
 
 ## Why AQI is shown once, not per neighborhood
 

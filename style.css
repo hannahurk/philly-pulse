@@ -27,10 +27,8 @@ html,body{
   transition:opacity 1.5s ease, filter 1.5s ease;
 }
 
-/* idle / wake — a webcam stands in for a real motion/PIR sensor, same
-   technique as the Gallery Wall sign's wave detection (frame-diffing, no
-   camera shown, no ML). If the camera is denied or unavailable the sign
-   just never dims, since there'd be no way to sense a wake either. */
+/* idle / wake — mouse/touch/keyboard activity stands in for a real
+   motion/PIR sensor, same conceit as the "Look Up" sign's idle/wake cycle. */
 body.is-idle .sign{
   opacity:0.4;
   filter:saturate(0.5);
