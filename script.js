@@ -1,4 +1,4 @@
-// Philly Pulse — a sign that puts the answer to "does weather/AQI vary
+// Philly Weather — a sign that puts the answer to "does weather/AQI vary
 // across Philly neighborhoods?" on the wall: live temperature per
 // neighborhood (which genuinely does vary block to block) next to a single
 // citywide AQI reading (which, at the resolution free data offers, does not).
@@ -79,13 +79,42 @@ function aqiUrl(lat, lon) {
   return `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=us_aqi`;
 }
 
+// Official EPA AQI scale — ranges and definitions verbatim from
+// airnow.gov, used here as the reference for both the current-condition
+// blurb and the always-visible six-tier legend.
+const AQI_SCALE = [
+  { cls: 'good', range: '0–50', label: 'Good',
+    def: 'Air quality is satisfactory, and air pollution poses little or no risk.' },
+  { cls: 'moderate', range: '51–100', label: 'Moderate',
+    def: 'Acceptable air quality. However, there may be a risk for some people, particularly those unusually sensitive to air pollution.' },
+  { cls: 'sensitive', range: '101–150', label: 'Unhealthy for Sensitive Groups',
+    def: 'Members of sensitive groups may experience health effects. The general public is less likely to be affected.' },
+  { cls: 'unhealthy', range: '151–200', label: 'Unhealthy',
+    def: 'Some members of the general public may experience health effects; members of sensitive groups may experience more serious effects.' },
+  { cls: 'very-unhealthy', range: '201–300', label: 'Very Unhealthy',
+    def: 'Health alert: the risk of health effects is increased for everyone.' },
+  { cls: 'hazardous', range: '301+', label: 'Hazardous',
+    def: 'Health warning of emergency conditions: everyone is more likely to be affected.' },
+];
+
 function aqiCategory(aqi) {
-  if (aqi <= 50) return { label: 'Good', cls: 'good' };
-  if (aqi <= 100) return { label: 'Moderate', cls: 'moderate' };
-  if (aqi <= 150) return { label: 'Unhealthy (sensitive groups)', cls: 'sensitive' };
-  if (aqi <= 200) return { label: 'Unhealthy', cls: 'unhealthy' };
-  if (aqi <= 300) return { label: 'Very unhealthy', cls: 'very-unhealthy' };
-  return { label: 'Hazardous', cls: 'hazardous' };
+  if (aqi <= 50) return AQI_SCALE[0];
+  if (aqi <= 100) return AQI_SCALE[1];
+  if (aqi <= 150) return AQI_SCALE[2];
+  if (aqi <= 200) return AQI_SCALE[3];
+  if (aqi <= 300) return AQI_SCALE[4];
+  return AQI_SCALE[5];
+}
+
+function renderAqiScale(activeCls) {
+  const el = document.getElementById('aqiScale');
+  el.innerHTML = AQI_SCALE.map((e) => `
+    <div class="aqi-scale-item ${e.cls}${e.cls === activeCls ? ' active' : ''}">
+      <span class="aqi-scale-dot"></span>
+      <span class="aqi-scale-range">${e.range}</span>
+      <span class="aqi-scale-label">${e.label}</span>
+    </div>
+  `).join('');
 }
 
 // ---------- pins ----------
@@ -150,6 +179,8 @@ async function loadAQI() {
     banner.className = 'aqi-banner ' + cat.cls;
     document.getElementById('aqiValue').textContent = aqi;
     document.getElementById('aqiCat').textContent = cat.label;
+    document.getElementById('aqiDef').textContent = cat.def;
+    renderAqiScale(cat.cls);
   } catch (err) {
     console.error('AQI fetch failed:', err);
     document.getElementById('aqiValue').textContent = '—';
@@ -176,6 +207,46 @@ function tickClock() {
     now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
   document.getElementById('clockDate').textContent =
     now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+  updateDayNight();
+}
+
+// ---------- day / night theme ----------
+//
+// Direct sunlight turns a black screen into a mirror, so the sign switches
+// to a bright, high-contrast light theme during the day and back to the
+// dark theme (better for low light) at night — timed to Philadelphia's
+// actual sunrise/sunset via the same Open-Meteo API that powers the
+// weather, not a fixed hour range.
+
+let sunrise = null;
+let sunset = null;
+
+function sunTimesUrl(lat, lon) {
+  return `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=sunrise,sunset&timezone=America%2FNew_York`;
+}
+
+async function loadSunTimes() {
+  try {
+    const res = await fetch(sunTimesUrl(AQI_POINT.lat, AQI_POINT.lon));
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    sunrise = new Date(data.daily.sunrise[0]);
+    sunset = new Date(data.daily.sunset[0]);
+  } catch (err) {
+    console.error('Sunrise/sunset fetch failed:', err);
+  }
+  updateDayNight();
+}
+
+function updateDayNight() {
+  const now = new Date();
+  // Before real sunrise/sunset data loads, guess from the clock so the
+  // first paint isn't stuck in the wrong theme; once loaded, the real
+  // times take over and this guess is never consulted again.
+  const isDay = sunrise && sunset
+    ? now >= sunrise && now < sunset
+    : now.getHours() >= 7 && now.getHours() < 19;
+  document.body.classList.toggle('is-day', isDay);
 }
 
 // ---------- idle / wake cycle ----------
@@ -185,7 +256,7 @@ function tickClock() {
 // below for a real PIR/ultrasonic sensor signal on a physical install.
 
 const IDLE_TIMEOUT_MS = 15000; // linger long enough to read a few neighborhoods
-const AWAKE_FOOTNOTE = 'Temperature is hyperlocal · air quality is measured citywide';
+const AWAKE_FOOTNOTE = '';
 const IDLE_FOOTNOTE = '· movement wakes this sign ·';
 
 let idleTimer = null;
@@ -213,6 +284,9 @@ function startIdleCycle() {
 
 tickClock();
 setInterval(tickClock, 30000);
+
+loadSunTimes();
+setInterval(loadSunTimes, 6 * 60 * 60 * 1000); // sunrise/sunset shift daily, recheck a few times a day
 
 buildPins();
 refreshAll();

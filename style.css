@@ -3,11 +3,50 @@
   --panel:#0d0d0d;
   --line:rgba(255,255,255,0.5);
   --muted:#d7e6e8;
-  --white:#ffffff;
+  --fg:#ffffff;
   --accent:#3ecfc0;
   --accent-dim:#1f6e66;
   --river:rgba(62,207,192,0.3);
+  --map-line:rgba(255,255,255,0.14);
+  --map-line-strong:rgba(255,255,255,0.28);
+  --hood-fill:rgba(62,207,192,0.07);
+  --hood-fill-alt:rgba(62,207,192,0.03);
+  --hood-stroke:rgba(255,255,255,0.10);
+  --hood-stroke-alt:rgba(255,255,255,0.07);
+  --aqi-good:#6bd66b;
+  --aqi-moderate:#e8d84a;
+  --aqi-sensitive:#f0a24a;
+  --aqi-unhealthy:#f0604a;
+  --aqi-very-unhealthy:#b06bd6;
+  --aqi-hazardous:#e8757c;
 }
+
+/* Day mode — a physical sign in direct sunlight needs a bright, high-
+   contrast light theme (a black screen becomes a mirror outdoors); night
+   keeps the dark theme above, which is what direct sunlight has no bearing
+   on. All colors re-verified against WCAG AA for this palette pairing. */
+body.is-day{
+  --bg:#ffffff;
+  --panel:#f2f2f2;
+  --line:rgba(0,0,0,0.45);
+  --muted:#4a4a4a;
+  --fg:#0a0a0a;
+  --accent:rgb(31,103,96);
+  --river:rgba(31,103,96,0.35);
+  --map-line:rgba(0,0,0,0.14);
+  --map-line-strong:rgba(0,0,0,0.28);
+  --hood-fill:rgba(31,103,96,0.06);
+  --hood-fill-alt:rgba(31,103,96,0.025);
+  --hood-stroke:rgba(0,0,0,0.10);
+  --hood-stroke-alt:rgba(0,0,0,0.07);
+  --aqi-good:#157a33;
+  --aqi-moderate:#7a6300;
+  --aqi-sensitive:#954a0d;
+  --aqi-unhealthy:#c23b28;
+  --aqi-very-unhealthy:#7a3fa0;
+  --aqi-hazardous:#a83f4a;
+}
+
 @media (prefers-reduced-motion: reduce){
   *, *::before, *::after{ animation-duration:0.001ms !important; animation-iteration-count:1 !important; }
 }
@@ -15,16 +54,21 @@
 html,body{
   width:100%;height:100%;
   background:var(--bg);
-  color:var(--white);
+  color:var(--fg);
   font-family:'IBM Plex Sans',ui-sans-serif,system-ui,sans-serif;
   overflow:hidden;
+}
+body,
+.sign, .topbar, .pin-card, .aqi-banner, .rail,
+.pin-name, .pin-feels, .footnote, .updated, .aqi-label, .aqi-cat, .clock .date{
+  transition:background-color 0.8s ease, color 0.8s ease, border-color 0.8s ease;
 }
 .sign{
   position:relative;
   width:100vw;height:100vh;
   display:flex;flex-direction:column;
   background:var(--bg);
-  transition:opacity 1.5s ease, filter 1.5s ease;
+  transition:opacity 1.5s ease, filter 1.5s ease, background-color 0.8s ease;
 }
 
 /* idle / wake — mouse/touch/keyboard activity stands in for a real
@@ -102,14 +146,17 @@ body.is-idle .sign{
   width:100%;
   height:100%;
 }
+.map-svg path, .map-svg polygon, .map-svg line{
+  transition:fill 0.8s ease, stroke 0.8s ease;
+}
 .map-svg .neighborhoods polygon.hood{
-  fill:rgba(62,207,192,0.07);
-  stroke:rgba(255,255,255,0.10);
+  fill:var(--hood-fill);
+  stroke:var(--hood-stroke);
   stroke-width:0.3;
 }
 .map-svg .neighborhoods polygon.hood.alt{
-  fill:rgba(62,207,192,0.03);
-  stroke:rgba(255,255,255,0.07);
+  fill:var(--hood-fill-alt);
+  stroke:var(--hood-stroke-alt);
   stroke-width:0.3;
 }
 .map-svg .river{
@@ -119,12 +166,12 @@ body.is-idle .sign{
   stroke-linecap:round;
 }
 .map-svg .parkway{
-  stroke:rgba(255,255,255,0.28);
+  stroke:var(--map-line-strong);
   stroke-width:0.5;
   stroke-dasharray:1.2 1.4;
 }
 .map-svg .grid-lines line{
-  stroke:rgba(255,255,255,0.14);
+  stroke:var(--map-line);
   stroke-width:0.3;
 }
 
@@ -143,6 +190,7 @@ body.is-idle .sign{
   border-radius:50%;
   background:var(--pin-color, var(--accent));
   box-shadow:0 0 12px var(--pin-color, var(--accent));
+  transition:filter 0.8s ease;
 }
 .pin-dot::before{
   content:"";
@@ -152,6 +200,16 @@ body.is-idle .sign{
   border:1px solid var(--pin-color, var(--accent));
   opacity:0.4;
   animation:ring 2.6s ease-out infinite;
+  transition:filter 0.8s ease;
+}
+/* Bright saturated accents read fine on black but wash out on a bright
+   white day background — darken just the dot/icon (not the card or the
+   border stripe, which pair with the neighborhood name as a redundant
+   text label rather than needing text-level contrast on their own). */
+body.is-day .pin-dot,
+body.is-day .pin-dot::before,
+body.is-day .pin-icon{
+  filter:brightness(0.5) saturate(1.15);
 }
 @keyframes ring{
   0%{transform:scale(0.6);opacity:0.8;}
@@ -198,6 +256,7 @@ body.is-idle .sign{
   width:26px;height:26px;
   flex-shrink:0;
   color:var(--pin-color, var(--accent));
+  transition:filter 0.8s ease;
 }
 .pin-icon svg{
   width:100%;height:100%;
@@ -226,12 +285,16 @@ body.is-idle .sign{
 }
 
 .aqi-banner{
-  display:flex;flex-wrap:wrap;align-items:baseline;gap:0.8vw;
+  display:flex;flex-direction:column;gap:0.6em;
   padding:1.6vh 3vw;
   background:var(--panel);
   border-bottom:2px solid var(--line);
   border-left:6px solid var(--aqi-color, var(--accent));
   flex-shrink:0;
+  transition:background-color 0.8s ease, border-color 0.8s ease;
+}
+.aqi-main{
+  display:flex;flex-wrap:wrap;align-items:baseline;gap:0.8vw;
 }
 .aqi-label{
   font-family:'IBM Plex Mono',ui-monospace,monospace;
@@ -245,24 +308,55 @@ body.is-idle .sign{
   font-size:clamp(32px,5vw,52px);
   line-height:1;
   font-variant-numeric:tabular-nums;
+  color:var(--aqi-color, var(--fg));
+  transition:color 0.8s ease;
 }
 .aqi-cat{
   font-family:'IBM Plex Mono',ui-monospace,monospace;
   font-size:clamp(14px,1.3vw,18px);
   color:var(--muted);
 }
-.aqi-banner.good{--aqi-color:#6bd66b;}
-.aqi-banner.moderate{--aqi-color:#e8d84a;}
-.aqi-banner.sensitive{--aqi-color:#f0a24a;}
-.aqi-banner.unhealthy{--aqi-color:#f0604a;}
-.aqi-banner.very-unhealthy{--aqi-color:#b06bd6;}
-.aqi-banner.hazardous{--aqi-color:#e8757c;}
-.aqi-banner.good .aqi-value{color:#6bd66b;}
-.aqi-banner.moderate .aqi-value{color:#e8d84a;}
-.aqi-banner.sensitive .aqi-value{color:#f0a24a;}
-.aqi-banner.unhealthy .aqi-value{color:#f0604a;}
-.aqi-banner.very-unhealthy .aqi-value{color:#b06bd6;}
-.aqi-banner.hazardous .aqi-value{color:#e8757c;}
+.aqi-def{
+  font-size:clamp(12px,1vw,15px);
+  color:var(--muted);
+  max-width:70ch;
+  line-height:1.4;
+}
+.aqi-scale{
+  display:flex;flex-wrap:wrap;
+  gap:0.4em 1.4em;
+}
+.aqi-scale-item{
+  display:flex;align-items:center;gap:0.4em;
+  font-family:'IBM Plex Mono',ui-monospace,monospace;
+  font-size:clamp(10px,0.85vw,12px);
+  opacity:0.7;
+  transition:opacity 0.8s ease;
+}
+.aqi-scale-item.active{
+  opacity:1;
+  font-weight:700;
+  text-decoration:underline;
+  text-underline-offset:3px;
+}
+.aqi-scale-dot{
+  width:8px;height:8px;
+  min-width:8px;
+  border-radius:50%;
+  background:currentColor;
+}
+.aqi-scale-item.good{color:var(--aqi-good);}
+.aqi-scale-item.moderate{color:var(--aqi-moderate);}
+.aqi-scale-item.sensitive{color:var(--aqi-sensitive);}
+.aqi-scale-item.unhealthy{color:var(--aqi-unhealthy);}
+.aqi-scale-item.very-unhealthy{color:var(--aqi-very-unhealthy);}
+.aqi-scale-item.hazardous{color:var(--aqi-hazardous);}
+.aqi-banner.good{--aqi-color:var(--aqi-good);}
+.aqi-banner.moderate{--aqi-color:var(--aqi-moderate);}
+.aqi-banner.sensitive{--aqi-color:var(--aqi-sensitive);}
+.aqi-banner.unhealthy{--aqi-color:var(--aqi-unhealthy);}
+.aqi-banner.very-unhealthy{--aqi-color:var(--aqi-very-unhealthy);}
+.aqi-banner.hazardous{--aqi-color:var(--aqi-hazardous);}
 
 .footnote{
   font-family:'IBM Plex Mono',ui-monospace,monospace;

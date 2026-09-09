@@ -1,4 +1,4 @@
-# Philly Pulse
+# Philly Weather
 
 A sign that answers a real question — does weather and air quality actually
 vary across Philadelphia neighborhoods? — by putting live numbers from ten
@@ -20,6 +20,23 @@ There's no touchscreen. Mouse, touch, and keyboard activity stand in for a
 real motion/PIR sensor — the same conceit as the "Look Up" sign's idle/wake
 cycle. After 15 seconds with no activity, the sign dims; any movement wakes
 it back up.
+
+## Day / night theme
+
+A physical sign in direct sunlight needs a bright, high-contrast light
+theme — a black screen turns into a mirror outdoors — while the dark theme
+is what's actually easy on the eyes at night. The switch is timed to
+Philadelphia's real sunrise/sunset (fetched from the same Open-Meteo API as
+the weather, rechecked a few times a day), not a fixed hour range. Every
+color in the light theme was re-verified against WCAG AA independently of
+the dark theme's palette — they're not simple inverses of each other.
+
+## AQI definitions
+
+The banner shows the official EPA definition for whatever category the
+current reading falls in, plus an always-visible six-tier legend (Good
+through Hazardous, each with its point range) so the current condition can
+be read in context rather than as an isolated number.
 
 ## Why AQI is shown once, not per neighborhood
 

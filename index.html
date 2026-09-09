@@ -5,13 +5,13 @@
 <link rel="stylesheet" href="./style.css">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Philly Pulse</title>
+<title>Philly Weather</title>
 </head>
 <body>
 
 <div class="sign" id="sign">
   <div class="topbar">
-    <div class="brand"><span class="dot"></span>Philly Pulse</div>
+    <div class="brand"><span class="dot"></span>Philly Weather</div>
     <div class="clock">
       <div class="time" id="clockTime">--:--</div>
       <div class="date" id="clockDate">--</div>
@@ -19,9 +19,13 @@
   </div>
 
   <div class="aqi-banner" id="aqiBanner">
-    <span class="aqi-label">CITYWIDE AIR QUALITY INDEX</span>
-    <span class="aqi-value" id="aqiValue">&mdash;</span>
-    <span class="aqi-cat" id="aqiCat">&mdash;</span>
+    <div class="aqi-main">
+      <span class="aqi-label">CITYWIDE AIR QUALITY INDEX</span>
+      <span class="aqi-value" id="aqiValue">&mdash;</span>
+      <span class="aqi-cat" id="aqiCat">&mdash;</span>
+    </div>
+    <p class="aqi-def" id="aqiDef">Reading conditions&hellip;</p>
+    <div class="aqi-scale" id="aqiScale"></div>
   </div>
 
   <div class="stage" id="stage">
@@ -59,7 +63,7 @@
   </div>
 
   <div class="rail">
-    <p class="footnote" id="footnote">Temperature is hyperlocal &middot; air quality is measured citywide</p>
+    <p class="footnote" id="footnote"></p>
     <div class="updated" id="updatedAt">Updating&hellip;</div>
   </div>
 </div>
