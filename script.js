@@ -149,6 +149,79 @@ function tickClock() {
     now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
 }
 
+// ---------- idle / wake via webcam motion sensing ----------
+//
+// A webcam stands in for a real motion/PIR sensor on a physical install —
+// same frame-diffing technique as the Gallery Wall sign's wave detection,
+// just watching continuously instead of waiting for a deliberate gesture.
+// The video feed itself is never shown or recorded anywhere.
+
+const IDLE_TIMEOUT_MS = 15000; // linger long enough to read a few neighborhoods
+const AWAKE_FOOTNOTE = 'Temperature is hyperlocal · air quality is measured citywide';
+const IDLE_FOOTNOTE = '· movement wakes this sign ·';
+
+let idleTimer = null;
+
+function wake() {
+  document.body.classList.remove('is-idle');
+  document.getElementById('footnote').textContent = AWAKE_FOOTNOTE;
+  clearTimeout(idleTimer);
+  idleTimer = setTimeout(goIdle, IDLE_TIMEOUT_MS);
+}
+
+function goIdle() {
+  document.body.classList.add('is-idle');
+  document.getElementById('footnote').textContent = IDLE_FOOTNOTE;
+}
+
+async function startMotionSensing() {
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return;
+
+  let stream;
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ video: { width: 160, height: 120 } });
+  } catch (err) {
+    return; // no camera available or permission denied — sign just stays awake
+  }
+
+  const video = document.createElement('video');
+  video.autoplay = true;
+  video.muted = true;
+  video.playsInline = true;
+  video.srcObject = stream;
+  video.play().catch(() => {});
+
+  const W = 48, H = 36;
+  const canvas = document.createElement('canvas');
+  canvas.width = W;
+  canvas.height = H;
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+
+  let prevFrame = null;
+  const MOTION_THRESHOLD = 3.2; // avg per-pixel luminance delta to count as "in motion"
+
+  function frame() {
+    if (video.readyState >= 2) {
+      ctx.drawImage(video, 0, 0, W, H);
+      const data = ctx.getImageData(0, 0, W, H).data;
+      const lum = new Float32Array(W * H);
+      for (let i = 0, p = 0; i < data.length; i += 4, p++) {
+        lum[p] = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
+      }
+      if (prevFrame) {
+        let diffSum = 0;
+        for (let p = 0; p < lum.length; p++) diffSum += Math.abs(lum[p] - prevFrame[p]);
+        if (diffSum / lum.length > MOTION_THRESHOLD) wake();
+      }
+      prevFrame = lum;
+    }
+    requestAnimationFrame(frame);
+  }
+
+  wake(); // now that sensing works, go awake and arm the idle timer
+  requestAnimationFrame(frame);
+}
+
 // ---------- boot ----------
 
 tickClock();
@@ -157,3 +230,4 @@ setInterval(tickClock, 30000);
 buildPins();
 refreshAll();
 setInterval(refreshAll, REFRESH_MS);
+startMotionSensing();
