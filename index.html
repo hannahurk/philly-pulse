@@ -22,8 +22,22 @@
     <div class="loading-msg" id="loadingMsg">Reading the city&hellip;</div>
 
     <svg class="map-svg" id="mapSvg" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+      <g class="neighborhoods">
+        <polygon class="hood" points="-5,-5 32,-5 27,20 6,24"/>
+        <polygon class="hood alt" points="32,-5 68,-5 74,18 40,22"/>
+        <polygon class="hood" points="68,-5 105,-5 105,22 74,18"/>
+        <polygon class="hood alt" points="-5,24 6,24 22,46 -5,50"/>
+        <polygon class="hood" points="27,20 40,22 58,40 22,46 6,24"/>
+        <polygon class="hood alt" points="40,22 74,18 105,22 105,58 62,50 58,40"/>
+        <polygon class="hood" points="-5,50 22,46 30,74 8,80 -5,72"/>
+        <polygon class="hood alt" points="22,46 58,40 62,50 55,72 30,74"/>
+        <polygon class="hood" points="62,50 105,58 105,95 58,86 55,72"/>
+        <polygon class="hood alt" points="-5,72 8,80 32,100 -5,105"/>
+        <polygon class="hood" points="8,80 30,74 55,72 58,86 42,100 32,100"/>
+        <polygon class="hood alt" points="58,86 105,95 105,105 42,100"/>
+      </g>
       <path class="river" d="M 34,-5 C 20,10 15,24 18,34 C 21,45 9,50 7,60 C 5,70 12,84 21,105" />
-      <line class="parkway" x1="8" y1="6" x2="62" y2="62" />
+      <line class="parkway" x1="44" y1="8" x2="48" y2="54" />
       <g class="grid-lines">
         <line x1="30" y1="0" x2="30" y2="100"/>
         <line x1="50" y1="0" x2="50" y2="100"/>

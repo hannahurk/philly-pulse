@@ -2,22 +2,22 @@
 
 A sign that answers a real question — does weather and air quality actually
 vary across Philadelphia neighborhoods? — by putting live numbers from five
-landmarks on one screen: the Zoo, the Art Museum, University City, City Hall,
-and Old City.
+real neighborhoods on one screen: Fairmount, University City, Old City,
+Rittenhouse Square, and Point Breeze.
 
 ## Live data
 
-- **Temperature & conditions** — [Open-Meteo](https://open-meteo.com/), one call per landmark, no API key required. This genuinely varies neighborhood to neighborhood.
+- **Temperature & conditions** — [Open-Meteo](https://open-meteo.com/), one call per neighborhood, no API key required. This genuinely varies neighborhood to neighborhood.
 - **Air quality (AQI)** — [Open-Meteo Air Quality API](https://open-meteo.com/en/docs/air-quality-api), no API key required.
 - **Clock** — the viewer's local system time, not tied to any API.
 
 Both refresh every 5 minutes.
 
-## Why AQI is shown once, not per landmark
+## Why AQI is shown once, not per neighborhood
 
 Open-Meteo's air-quality model runs on an ~11km grid — coarser than the
-distance between these five landmarks (all within about 3 miles of each
-other). Querying it per-landmark just returns the same number five times,
+distance between these five neighborhoods (all within about 3 miles of each
+other). Querying it per-neighborhood just returns the same number five times,
 which would be a *worse* answer than being upfront: temperature is
 hyperlocal enough to show real variation here; day-to-day ambient AQI, at
 the resolution free data offers, isn't. (Genuinely hyperlocal AQI exists —

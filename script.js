@@ -1,20 +1,20 @@
 // Philly Pulse — a sign that puts the answer to "does weather/AQI vary
-// across Philly neighborhoods?" on the wall: live temperature per landmark
-// (which genuinely does vary block to block) next to a single citywide AQI
-// reading (which, at the resolution free data offers, does not).
+// across Philly neighborhoods?" on the wall: live temperature per
+// neighborhood (which genuinely does vary block to block) next to a single
+// citywide AQI reading (which, at the resolution free data offers, does not).
 //
 // Weather: Open-Meteo forecast API, no key required.
 // Air quality: Open-Meteo Air Quality API, no key required — note its model
-// grid is roughly 11km, coarser than the distance between these landmarks,
-// which is exactly why AQI is shown once for the whole city rather than
-// once per pin (see README for detail).
+// grid is roughly 11km, coarser than the distance between these
+// neighborhoods, which is exactly why AQI is shown once for the whole city
+// rather than once per pin (see README for detail).
 
 const LANDMARKS = [
-  { key: 'zoo', name: 'Philadelphia Zoo', lat: 39.9718, lon: -75.2143, x: 8, y: 6 },
-  { key: 'moa', name: 'Museum of Art', lat: 39.9656, lon: -75.1810, x: 46, y: 20 },
-  { key: 'univcity', name: 'University City', lat: 39.9550, lon: -75.1930, x: 14, y: 48 },
-  { key: 'cityhall', name: 'City Hall', lat: 39.9526, lon: -75.1652, x: 62, y: 62, edgeRight: true },
-  { key: 'oldcity', name: 'Old City', lat: 39.9445, lon: -75.1430, x: 90, y: 88, edgeRight: true },
+  { key: 'fairmount', name: 'Fairmount', lat: 39.9656, lon: -75.1810, x: 44, y: 8 },
+  { key: 'univcity', name: 'University City', lat: 39.9550, lon: -75.1930, x: 10, y: 30 },
+  { key: 'oldcity', name: 'Old City', lat: 39.9525, lon: -75.1450, x: 90, y: 30, edgeRight: true },
+  { key: 'rittenhouse', name: 'Rittenhouse Square', lat: 39.9490, lon: -75.1719, x: 48, y: 54 },
+  { key: 'pointbreeze', name: 'Point Breeze', lat: 39.9180, lon: -75.1850, x: 26, y: 84 },
 ];
 
 const AQI_POINT = { lat: 39.9526, lon: -75.1652 }; // central Philly, used as the one citywide reading
